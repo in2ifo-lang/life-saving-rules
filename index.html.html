@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SEC | Life Saving Rules Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ====== (CSS كما هو – مختصر هنا للوضوح) ====== */
+body{font-family:Tajawal;background:#0a1628;color:#fff;margin:0}
+button{font-family:Tajawal}
+.app{max-width:900px;margin:auto;padding:16px}
+.ruleBtn{padding:12px;margin:6px;width:100%;border-radius:10px;border:none;cursor:pointer}
+.opt{padding:12px;margin:6px 0;border-radius:10px;cursor:pointer}
+.correct{background:#2ecc71}
+.wrong{background:#e74c3c}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<h1>SEC – Life Saving Rules Quiz</h1>
+
+<div id="rulesMenu"></div>
+<hr>
+
+<div id="quiz"></div>
+<div id="result"></div>
+</div>
+
+<script>
+/* ====== DATA ====== */
+
+const RULES = [
+{
+ code:"01",
+ title:"عزل الطاقة",
+ quiz:[
+  {
+   q:"ما أول خطوة قبل العمل على معدات كهربائية؟",
+   options:["البدء مباشرة","تحديد جميع مصادر الطاقة","لبس القفازات","سؤال زميل"],
+   correct:1
+  },
+  {
+   q:"بعد العزل ماذا يجب فعله؟",
+   options:["ترك المصدر","وضع أقفال وبطاقات","إبلاغ شفهي","البدء بالعمل"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"02",
+ title:"العمل على المرتفعات",
+ quiz:[
+  {
+   q:"متى يجب استخدام حزام الأمان؟",
+   options:["غير ضروري","أكثر من 1.8 متر","عند السرعة","فقط مع مشرف"],
+   correct:1
+  },
+  {
+   q:"ما أول إجراء قبل الصعود؟",
+   options:["البدء فوراً","فحص الحزام ونقطة التثبيت","الصعود بسرعة","سؤال عامل"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"03",
+ title:"رفع الأحمال",
+ quiz:[
+  {
+   q:"قبل الرفع يجب وجود:",
+   options:["عامل إضافي","خطة رفع ومعدات معتمدة","سرعة","خبرة فقط"],
+   correct:1
+  },
+  {
+   q:"أين يجب الوقوف أثناء الرفع؟",
+   options:["تحت الحمولة","بجانبها","خارج منطقة الرفع","على الرافعة"],
+   correct:2
+  }
+ ]
+},
+
+{
+ code:"04",
+ title:"الأعمال الساخنة",
+ quiz:[
+  {
+   q:"ما المطلوب قبل الأعمال الساخنة؟",
+   options:["بدء العمل","تصريح عمل ساخن","فتح نوافذ","إحضار مروحة"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"05",
+ title:"الأماكن المغلقة",
+ quiz:[
+  {
+   q:"قبل دخول مكان مغلق يجب:",
+   options:["الدخول مباشرة","فحص الغازات وتصريح","إحضار أدوات","تشغيل مروحة فقط"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"06",
+ title:"القيادة الآمنة",
+ quiz:[
+  {
+   q:"أهم قاعدة أثناء القيادة؟",
+   options:["الجوال","حزام الأمان","السرعة","الأكل"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"07",
+ title:"السلامة الكهربائية",
+ quiz:[
+  {
+   q:"قبل العمل الكهربائي يجب:",
+   options:["البدء فوراً","العزل والاختبار","قفازات فقط","سؤال زميل"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"08",
+ title:"الحفر والتنقيب",
+ quiz:[
+  {
+   q:"قبل الحفر يجب:",
+   options:["البدء مباشرة","تصريح حفر وكشف الخدمات","إحضار معدات","العمل بسرعة"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"09",
+ title:"الحواجز ومناطق الخطر",
+ quiz:[
+  {
+   q:"لماذا تستخدم الحواجز؟",
+   options:["للزينة","لمنع الدخول لمناطق الخطر","لتحديد الوقت","لتخزين معدات"],
+   correct:1
+  }
+ ]
+},
+
+{
+ code:"10",
+ title:"معدات الوقاية وتقييم المخاطر",
+ quiz:[
+  {
+   q:"اختيار PPE يكون بناءً على:",
+   options:["اللون","المخاطر","المقاس فقط","رأي العامل"],
+   correct:1
+  }
+ ]
+}
+];
+
+/* ====== LOGIC ====== */
+let currentRule=null;
+let qIndex=0;
+let score=0;
+
+const rulesMenu=document.getElementById("rulesMenu");
+const quizDiv=document.getElementById("quiz");
+const resultDiv=document.getElementById("result");
+
+RULES.forEach((r,i)=>{
+ const b=document.createElement("button");
+ b.className="ruleBtn";
+ b.textContent=r.code+" - "+r.title;
+ b.onclick=()=>startRule(i);
+ rulesMenu.appendChild(b);
+});
+
+function startRule(i){
+ currentRule=RULES[i];
+ qIndex=0;score=0;
+ showQ();
+}
+
+function showQ(){
+ quizDiv.innerHTML="";
+ const q=currentRule.quiz[qIndex];
+ const h=document.createElement("h3");
+ h.textContent=q.q;
+ quizDiv.appendChild(h);
+
+ q.options.forEach((o,idx)=>{
+  const b=document.createElement("div");
+  b.className="opt";
+  b.textContent=o;
+  b.onclick=()=>answer(idx);
+  quizDiv.appendChild(b);
+ });
+}
+
+function answer(idx){
+ const q=currentRule.quiz[qIndex];
+ if(idx===q.correct) score++;
+ qIndex++;
+ if(qIndex<currentRule.quiz.length) showQ();
+ else showResult();
+}
+
+function showResult(){
+ quizDiv.innerHTML="";
+ resultDiv.innerHTML=`النتيجة: ${score} / ${currentRule.quiz.length}`;
+}
+</script>
+
+</body>
+</html>
